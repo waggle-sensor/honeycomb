@@ -1,0 +1,88 @@
+!Current Configuration:
+!
+!System Description "EdgeSwitch 8-Port 150W, 1.8.1.5145168, Linux 3.6.5-1b505fb7, 1.1.0.5102011"
+!System Software Version "1.8.1.5145168"
+!System Up Time          "0 days 0 hrs 2 mins 58 secs"
+!Additional Packages     QOS,IPv6 Management,Routing
+!Current SNTP Synchronized Time: SNTP Last Attempt Status Is Not Successful
+!
+vlan database
+exit
+configure
+line console
+exit
+line telnet
+exit
+line ssh
+exit
+!
+ip dhcp snooping
+ip dhcp snooping vlan 1
+ipv6 dhcp snooping
+ipv6 dhcp snooping vlan 1
+ipv6 dhcp snooping vlan 2
+ipv6 dhcp snooping vlan 3
+interface 0/1
+poe opmode passive24v
+exit
+interface 0/2
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface 0/3
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface 0/4
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface 0/5
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface 0/6
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface 0/7
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface 0/8
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface 0/9
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface 0/10
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface lag 1
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface lag 2
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface lag 3
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface lag 4
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface lag 5
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+interface lag 6
+ip dhcp snooping trust
+ipv6 dhcp snooping trust
+exit
+exit
