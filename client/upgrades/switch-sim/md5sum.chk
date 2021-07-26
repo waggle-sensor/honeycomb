@@ -1,0 +1,5 @@
+465031bd21aa374b596a56e5bba7b281  ./hc_state_check.sh
+fafc2bfbd0f5ef6fd4265ab64d862cba  ./metadata.json
+371e531afa15b079e804b9f675fb2292  ./hc_verify_upgrade.sh
+d5edca1c4bde4309d974ebdd9ff38a80  ./md5sum.chk
+8e1197f39e88223b2b036535eec94a16  ./hc_install_upgrade.sh

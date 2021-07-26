@@ -22,6 +22,7 @@ from manager import hc_manager
 # All output for this service will be piped to journalctl under the honeycomb service
 logging.basicConfig(level=logging.INFO)
 
+
 app = Flask(__name__)
 api = Api(app)
 app.register_blueprint(upgrade)
