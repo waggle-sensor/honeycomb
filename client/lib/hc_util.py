@@ -24,7 +24,6 @@ def init_upgrade_env(payload):
 
     # upgrade env has already been created? 
 
-
     upgrade_name = f"{payload['peripheral_name']}-{payload['config_version']}"
     if os.path.isdir(f"./jobs/{upgrade_name}"):
         
@@ -92,19 +91,31 @@ def verify_checksum(payload):
     # TODO: should I add a try/except here? 
 
     """ Our hashfile will have lines in the form of:
-        MD5SUM   /path/to/file
+        MD5SUM  /path/to/file
+        The two spaces between the sum and the path are why we go from index 0 to 2 on lines 103-104
     """ 
-    with open("md5sum.chk", "rb") as hashfile:
+    with open("md5sum.chk", "r") as hashfile:
 
         for line in hashfile:
 
             # get the path and the hash
-            current_hash = line.split(" ")[0].encode()
-
-            current_file = line.split(" ")[1]
+            current_hash = line.split(" ")[0]
+            current_file = line.split(" ")[2].replace("\n", "")
             
+            """ 
+                because of the way that md5sum.chk is created, the hash will always differ
+                when the file is being written. it checksums itself, but then adds more data after,
+                making the checksum inaccurate.
+                If this is a big deal, you might have to change how the checksums are generated in
+                the ./upgrades/build_upgrade.sh file. I think it's fine, though
+            """
+            if current_file == "./md5sum.chk":
+                continue
+
+            # open each file in the checksum file and verify the checksum 
+
             with open(current_file, "rb") as tmpfile:
-                    
+                
                 hash = hashlib.md5()
                 fcontent = tmpfile.read()
                 hash.update(fcontent)
@@ -112,7 +123,11 @@ def verify_checksum(payload):
 
                 if file_hash != current_hash:
                     
-                    logging.info(f"{current_file} DOES NOT MATCH THE HASH")
+                    return {
+                        "message" : f"{current_file} DOES NOT MATCH THE HASH",
+                        "return_code" : 400
+                    }
+
 
     # if all is good, return it as so
     return {

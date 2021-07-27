@@ -16,11 +16,10 @@ upgrade = Blueprint("upgrade", __name__)
 def process():
 
     payload = request.json
-    logging.info(payload)
+    # logging.info(payload)
     
     # go through every check we have, if it errors out, return that message and code
-    # I don't think I can return a message or code directly from these check functions, 
-    # So I have to check manually
+
 
     # check that we have a valid payload
     payload_validity = check_payload_validity(payload)
@@ -32,15 +31,25 @@ def process():
     if env_validity["return_code"] >= 400:
         return env_validity["message"], env_validity["return_code"]
 
-   
    # verify the checksum
     checksum_validity = verify_checksum(payload)
     if checksum_validity["return_code"] >= 400:
         return checksum_validity["message"], checksum_validity["return_code"]
 
-    
+    # at this point, we're in the ./job/jobX directory, so we need to cd back to /honeycomb
+    os.chdir("../../")
+
+    # grab our metadata JSON, pass it to the job
+    upgrade_name = f"{payload['peripheral_name']}-{payload['config_version']}"
+
+    with open(f"./jobs/{upgrade_name}/metadata.json") as manifest:
+        manifest_json = json.load(manifest)
+        app.honeycomb.addJob(manifest_json, upgrade_name)
+        logging.info("Job has been added to queue")
+        logging.info(app.honeycomb.getJobs())
+
+    # TODO: Change this success message
     return { "message" : "Upgrade called successfully" }, 200
 
-# TODO: It might be useful to move these computational functions out of this route? maybe import them from somewhere.  
 # TODO: make a cleanup function if the payload is not good. basically just delete the upgrade folder
 
