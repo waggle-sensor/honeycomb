@@ -4,6 +4,7 @@ import os
 import shutil
 
 from job import job
+
 # Create an enumeration for our states. This seems a bit more elegant than just using hard-coded strings. Might delete later if this complicates things
 class State(Enum):
     IDLE = 1
@@ -15,7 +16,7 @@ class State(Enum):
 # maintain a list of jobs, or pending updates
 class hc_manager:
 
-# maintaining a 'state' across the manager allows for transparency of operations in the bigger picture# 
+    # maintaining a 'state' across the manager allows for transparency of operations in the bigger picture#
 
     def __init__(self):
         self.__state = State.IDLE
@@ -28,11 +29,8 @@ class hc_manager:
     def setState(self, newState):
         self.__state = newState
 
-
-# add has an optional parameter to make the new job LIFO, instead of FIFO
-    def addJob(self, manifest, job_dir, LIFO=False ): 
-        
-        # 
+    # add has an optional parameter to make the new job LIFO, instead of FIFO
+    def addJob(self, manifest, job_dir, LIFO=False):
 
         if LIFO == True:
             self.__jobs.insert(0, job(manifest))
@@ -49,16 +47,20 @@ class hc_manager:
         logging.info(os.getcwd())
 
         # change into job dir
-        
+
         os.chdir(f"./jobs/{job_to_run.get_job_dir()}/")
 
-        job_to_run.state_check()
-        job_to_run.install_upgrade()
-        job_to_run.verify_upgrade()
-
+        if not job_to_run.state_check():
+            logging.info(
+                f"Job {job_to_run.get_name()} did not pass the state check- ABORTING."
+            )
+            return
+        if not job_to_run.install_upgrade():
+            logging.info(f"Job {job_to_run.get_name()} did not install- ABORTING.")
+            return
+        if not job_to_run.verify_upgrade():
+            logging.info(f"Job {job_to_run.get_name()} could not verify- ABORTING.")
+            return
         # now it's all said and done- delete the job dir and change back
         os.chdir("../../")
-        shutil.rmtree(f"./jobs/{job_to_run.get_job_dir()}/")  
-
-
-
+        shutil.rmtree(f"./jobs/{job_to_run.get_job_dir()}/")

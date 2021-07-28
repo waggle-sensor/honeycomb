@@ -12,26 +12,26 @@ logging.basicConfig(level=logging.INFO)
 
 upgrade = Blueprint("upgrade", __name__)
 
-@upgrade.route("/upgrade", methods=['POST'])
+
+@upgrade.route("/upgrade", methods=["POST"])
 def process():
 
     payload = request.json
     # logging.info(payload)
-    
-    # go through every check we have, if it errors out, return that message and code
 
+    # go through every check we have, if it errors out, return that message and code
 
     # check that we have a valid payload
     payload_validity = check_payload_validity(payload)
     if payload_validity["return_code"] >= 400:
         return payload_validity["message"], payload_validity["return_code"]
-    
+
     # set up payload env
     env_validity = init_upgrade_env(payload)
     if env_validity["return_code"] >= 400:
         return env_validity["message"], env_validity["return_code"]
 
-   # verify the checksum
+    # verify the checksum
     checksum_validity = verify_checksum(payload)
     if checksum_validity["return_code"] >= 400:
         return checksum_validity["message"], checksum_validity["return_code"]
@@ -46,10 +46,9 @@ def process():
         manifest_json = json.load(manifest)
         app.honeycomb.addJob(manifest_json, upgrade_name)
         logging.info("Job has been added to queue")
-        logging.info(app.honeycomb.getJobs())
 
     # TODO: Change this success message
-    return { "message" : "Upgrade called successfully" }, 200
+    return {"message": "Upgrade called successfully\n"}, 200
+
 
 # TODO: make a cleanup function if the payload is not good. basically just delete the upgrade folder
-

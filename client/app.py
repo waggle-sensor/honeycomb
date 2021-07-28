@@ -19,7 +19,6 @@ from job import job
 from manager import hc_manager
 
 
-
 # All output for this service will be piped to journalctl under the honeycomb service
 logging.basicConfig(level=logging.INFO)
 
@@ -40,27 +39,27 @@ app.honeycomb = honeycomb
     BUT- there might be race conditions. that's what I'm getting hung up on.  
 """
 
+
 def check_for_jobs():
     while True:
-        
+
         jobList = app.honeycomb.getJobs()
 
-        if len(jobList) > 0 :
+        if len(jobList) > 0:
             logging.info(f"Executing Job: {jobList[0].get_name()}")
             app.honeycomb.runJob()
         time.sleep(1)
-    
 
 
 check_thread = threading.Thread(target=check_for_jobs)
 check_thread.start()
 
+
 @app.route("/")
 def hello_world():
     logging.info(app.honeycomb.getJobs())
-    return { "message" : f"Honeycomb is currently {app.honeycomb.getState()}" }
+    return {"message": f"Honeycomb is currently {app.honeycomb.getState()}\n"}
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
