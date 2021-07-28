@@ -1,5 +1,8 @@
 from enum import Enum
 import logging
+import os
+import shutil
+
 from job import job
 # Create an enumeration for our states. This seems a bit more elegant than just using hard-coded strings. Might delete later if this complicates things
 class State(Enum):
@@ -42,10 +45,20 @@ class hc_manager:
     # take an index for the job we want to run. By default, we want a queue, so we run the 0th job.
     def runJob(self, index=0):
 
-        job_to_run = self.getJobs()[index]
-        logging.info("Made it here")
-        job_to_run.state_check()
+        job_to_run = self.getJobs().pop(index)
+        logging.info(os.getcwd())
+
+        # change into job dir
         
+        os.chdir(f"./jobs/{job_to_run.get_job_dir()}/")
+
+        job_to_run.state_check()
+        job_to_run.install_upgrade()
+        job_to_run.verify_upgrade()
+
+        # now it's all said and done- delete the job dir and change back
+        os.chdir("../../")
+        shutil.rmtree(f"./jobs/{job_to_run.get_job_dir()}/")  
 
 
 

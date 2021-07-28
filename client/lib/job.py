@@ -66,7 +66,6 @@ class job:
         self.__state_check_retry = manifest["retry_state_check"]
         self.__install_retry = manifest["retry_install"]
         self.__verify_retry = manifest["retry_verify"]
-        self.__force_install = manifest["force_install"]
 
 
     def get_retry_values(self, manifest):
@@ -74,7 +73,6 @@ class job:
             "state_check" : self.__state_check_retry,
             "install" : self.__install_retry,
             "verify" : self.__verify_retry,
-            "force_install" : self.__force_install
         }
         
 
@@ -82,20 +80,50 @@ class job:
     # def is_job_enabled():
     # def is_job_disabled(): 
 
+    def get_job_dir(self):
+        return self.__job_dir
+
+
     def state_check(self):
-        logging.info(f"Running {self.__name} State check")
 
         # we need to be in the root directory to make sure this process runs smoothly
-        os.chdir(f"./jobs/{self.__job_dir}/")
-        logging.info(f"Running {self.__name} STATE check")
-        logging.info(os.getcwd())
-        # for try in range(0, self.__state_check_retry):
+        # os.chdir(f"./jobs/{self.__job_dir}/")
 
-        # TODO: this code keeps freezing for some reason
-        
-        z = subprocess.run("ls -la")
-        logging.info(str(z.stdout))
+        # Run our state check as many times as we need 
+        for x in range(0, self.__state_check_retry):
+            logging.info(f"Running {self.__name} state check, try {x+1}")
 
+            z = subprocess.run("./hc_state_check.sh", subprocess.STDOUT, shell=True)
+            if z.returncode != 0:
+                logging.info(f"State check FAILED with error code {z.returncode}")
+            else:
+                logging.info(f"State check PASSED, proceeding to install")
+                break
 
+    def install_upgrade(self):
 
+        # Run our install as many times as we need 
+        for x in range(0, self.__install_retry):
+            logging.info(f"Running {self.__name} upgrade install, try {x+1}")
+
+            z = subprocess.run("./hc_install_upgrade.sh", subprocess.STDOUT, shell=True)
+            if z.returncode != 0:
+                logging.info(f"Install FAILED with error code {z.returncode}")
+            else:
+                logging.info(f"Install PASSED, proceeding to verification")
+                break
+
+    def verify_upgrade(self):
+
+        for x in range(0, self.__verify_retry):
+            logging.info(f"Running {self.__name} upgrade verification, try {x+1}")
+
+            z = subprocess.run("./hc_verify_upgrade.sh", subprocess.STDOUT, shell=True)
+            if z.returncode != 0:
+                logging.info(f"Verification FAILED with error code {z.returncode}")
+            else:
+                logging.info(f"Verification PASSED, upgrade complete! Proceeding to cleanup.")
+                break
+
+# TODO: Remove force_install option from hc metadata.json and README
 
