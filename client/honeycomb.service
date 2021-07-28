@@ -1,0 +1,13 @@
+[Unit]
+Description=Honeycomb service
+#After=multi-user.target
+
+[Service]
+Type=simple
+#Restart=always
+StandardOutput=journal+console
+WorkingDirectory=/honeycomb/
+ExecStart=/usr/local/bin/flask run
+
+[Install]
+WantedBy=multi-user.target
