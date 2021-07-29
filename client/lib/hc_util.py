@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+from sys import path
 import tarfile
 import hashlib
 import shutil
@@ -38,10 +39,9 @@ def init_upgrade_env(payload):
 
     config_file = tarfile.open(f"./upgrades/{payload['config_file']}", "r:*")
     os.mkdir(f"./jobs/{upgrade_name}")
-    os.chdir(f"./jobs/{upgrade_name}")
     # Try to extract the tarfile
     try:
-        config_file.extractall()
+        config_file.extractall(path=f"./jobs/{upgrade_name}")
     except tarfile.ReadError:
         return {
             "message": f"ReadError: Could not extract {payload['config_file']}\n",
@@ -83,7 +83,7 @@ def check_payload_validity(payload):
 
 def verify_checksum(payload):
 
-    upgrade_name = f"{payload['peripheral_name']}-{payload['config_version']}\n"
+    upgrade_name = f"{payload['peripheral_name']}-{payload['config_version']}"
 
     # open our md5sum.chk file and verify checksums
     # TODO: should I add a try/except here?
@@ -92,13 +92,14 @@ def verify_checksum(payload):
         MD5SUM  /path/to/file
         The two spaces between the sum and the path are why we go from index 0 to 2 on lines 103-104
     """
-    with open("md5sum.chk", "r") as hashfile:
+    with open(f"./jobs/{upgrade_name}/md5sum.chk", "r") as hashfile:
 
         for line in hashfile:
 
             # get the path and the hash
             current_hash = line.split(" ")[0]
             current_file = line.split(" ")[2].replace("\n", "")
+            current_file = f"./jobs/{upgrade_name}/{current_file.replace('./', '')}"
 
             """ 
                 because of the way that md5sum.chk is created, the hash will always differ
@@ -107,7 +108,7 @@ def verify_checksum(payload):
                 If this is a big deal, you might have to change how the checksums are generated in
                 the ./upgrades/build_upgrade.sh file. I think it's fine, though
             """
-            if current_file == "./md5sum.chk":
+            if current_file == f"./jobs/{upgrade_name}/md5sum.chk":
                 continue
 
             # open each file in the checksum file and verify the checksum
@@ -122,8 +123,6 @@ def verify_checksum(payload):
                 if file_hash != current_hash:
 
                     # clean up our environment
-                    # we are in /honeycomb/jobs/jobX right now
-                    os.chdir("../../")
                     shutil.rmtree(f"./jobs/{upgrade_name}")
                     return {
                         "message": f"{current_file} DOES NOT MATCH THE HASH\n",
@@ -131,4 +130,47 @@ def verify_checksum(payload):
                     }
 
     # if all is good, return it as so
+    return {"message": "All good\n", "return_code": 200}
+
+
+def check_manifest_validity(manifest, upgrade_name):
+
+    required_fields = [
+        "config_version",
+        "force_install",
+        "retry_state_check",
+        "retry_install",
+        "retry_verify",
+        "peripheral_name",
+        "force_install",
+    ]
+
+    for field in required_fields:
+        if field not in manifest:
+            return {
+                "message": f"{field} was not found in manifest for upgrade {upgrade_name}- aborting",
+                "return_code": 400,
+            }
+
+    logging.info(f"Upgrade metadata.json all good ✓")
+    return {"message": "All good\n", "return_code": 200}
+
+
+def check_required_files(manifest, job_path):
+
+    required_files = [
+        "hc_state_check.sh",
+        "hc_install_upgrade.sh",
+        "hc_verify_upgrade.sh",
+    ]
+
+    # for each required file, check if it's in our root dir
+    all_files = os.listdir(job_path)
+    for file in required_files:
+        if not os.path.isfile(f"{job_path}/{file}"):
+            logging.info(f"ERROR: Job is missing file {file} in path {job_path}")
+            return {
+                "message": f"Could not find file {job_path}/{file}",
+                "return_code": 400,
+            }
     return {"message": "All good\n", "return_code": 200}

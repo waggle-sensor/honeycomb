@@ -44,23 +44,31 @@ class hc_manager:
     def runJob(self, index=0):
 
         job_to_run = self.getJobs().pop(index)
-        logging.info(os.getcwd())
 
-        # change into job dir
+        # if any of these processes fail, log it, and delete the environment
 
-        os.chdir(f"./jobs/{job_to_run.get_job_dir()}/")
+        self.__state = State.UPDATING
 
         if not job_to_run.state_check():
             logging.info(
                 f"Job {job_to_run.get_name()} did not pass the state check- ABORTING."
             )
+            self.__state = State.IDLE
+            shutil.rmtree(job_to_run.get_job_dir())
+
             return
         if not job_to_run.install_upgrade():
             logging.info(f"Job {job_to_run.get_name()} did not install- ABORTING.")
+            self.__state = State.IDLE
+            shutil.rmtree(job_to_run.get_job_dir())
+
             return
         if not job_to_run.verify_upgrade():
             logging.info(f"Job {job_to_run.get_name()} could not verify- ABORTING.")
+            self.__state = State.IDLE
+            shutil.rmtree(job_to_run.get_job_dir())
             return
         # now it's all said and done- delete the job dir and change back
-        os.chdir("../../")
-        shutil.rmtree(f"./jobs/{job_to_run.get_job_dir()}/")
+        shutil.rmtree(job_to_run.get_job_dir())
+        self.__state = State.IDLE
+        # TODO: once we get rid of os.chdir() calls, just make a cleanup function and call it at the end

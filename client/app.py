@@ -14,22 +14,24 @@ sys.path.append("./lib")
 from flask import Flask
 from flask_restful import Resource, Api
 
-from upgrade_peripheral import upgrade
+from queue_upgrade import upgrade
 from job import job
 from manager import hc_manager
-
+from manager import State
 
 # All output for this service will be piped to journalctl under the honeycomb service
 logging.basicConfig(level=logging.INFO)
 
-
 app = Flask(__name__)
 api = Api(app)
-app.register_blueprint(upgrade)
 
 # use app as a context
 honeycomb = hc_manager()
 app.honeycomb = honeycomb
+
+
+app.register_blueprint(upgrade)
+
 
 """ Set a timeout to check the honeycomb queue every x seconds, and run jobs
     To me, this is an ok way to accomplish the 'queue' functionality of honeycomb
@@ -45,7 +47,7 @@ def check_for_jobs():
 
         jobList = app.honeycomb.getJobs()
 
-        if len(jobList) > 0:
+        if len(jobList) > 0 and app.honeycomb.getState() == State.IDLE:
             logging.info(f"Executing Job: {jobList[0].get_name()}")
             app.honeycomb.runJob()
         time.sleep(1)

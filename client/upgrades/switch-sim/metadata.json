@@ -1,9 +1,8 @@
 {
-    "upgrade_name" : "SWITCH-1",
+    "upgrade_name": "SWITCH-1",
     "peripheral_name": "Ubiquiti Edgeswitch",
-    "config_version" : "1.0.0",
-    "retry_state_check" : 5,
-    "retry_install" : 5,
-    "retry_verify" : 5,
-    "force_install" : false
+    "config_version": "1.0.0",
+    "retry_state_check": 5,
+    "retry_install": 5,
+    "retry_verify": 5
 }
