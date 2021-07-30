@@ -38,9 +38,9 @@ class job:
 
     def set_retry_values(self, manifest):
 
-        self.__state_check_retry = manifest["retry_state_check"]
-        self.__install_retry = manifest["retry_install"]
-        self.__verify_retry = manifest["retry_verify"]
+        self.__state_check_retry = manifest["retry_state_check"] + 1
+        self.__install_retry = manifest["retry_install"] + 1
+        self.__verify_retry = manifest["retry_verify"] + 1
 
     def get_retry_values(self, manifest):
         return {

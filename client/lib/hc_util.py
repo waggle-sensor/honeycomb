@@ -11,7 +11,6 @@ def check_manifest_validity(manifest, upgrade_name):
 
     required_fields = [
         "config_version",
-        "force_install",
         "retry_state_check",
         "retry_install",
         "retry_verify",

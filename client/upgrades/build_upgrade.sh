@@ -22,8 +22,8 @@ echo "Making upgrade .tar.gz for $upgrade_name"
 find . -type f -exec md5sum {} \; > md5sum.chk
 if [ "$2" != "" ]; 
 then 
-    tar cfvz "../$2.tar.gz" *
+    tar cfvz ../$2.tar.gz *
 else 
-    tar cfvz "../$upgrade_name.tar.gz" *
+    tar cfvz ../$upgrade_name.tar.gz *
 fi
 
