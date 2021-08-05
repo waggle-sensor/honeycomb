@@ -7,6 +7,9 @@ import hashlib
 import shutil
 
 
+logging.basicConfig(level=logging.INFO)
+
+
 def check_manifest_validity(manifest, upgrade_name):
 
     required_fields = [
@@ -51,10 +54,18 @@ def check_required_files(manifest, job_path):
 
 def check_for_tarfile(fname):
 
-    fullname = f"./upgrades/{fname}.tar.gz"
+    fullname = f"./upgrades/{fname}"
 
     if not os.path.isfile(fullname):
         return {"message": f"Could not find file {fullname}", "return_code": 400}
+    else:
+        return {"message": f"File {fullname}", "return_code": 200}
+
+    if not tarfile.is_tarfile(fullname):
+        return {
+            "message": f"Could not find valid tarfile {fullname}",
+            "return_code": 400,
+        }
     else:
         return {"message": f"File {fullname}", "return_code": 200}
 
@@ -77,14 +88,16 @@ def init_upgrade_env_tar(fname):
             "return_code": 400,
         }
 
-    config_file = tarfile.open(f"./upgrades/{fname}.tar.gz", "r:*")
+    config_file = tarfile.open(f"./upgrades/{fname}", "r:*")
     os.mkdir(f"./jobs/{fname}")
+    logging.info(f"Creating job directory ./jobs/{fname}")
     # Try to extract the tarfile
     try:
         config_file.extractall(path=f"./jobs/{fname}")
     except tarfile.ReadError:
+        shutil.rmtree(f"./jobs/{fname}")
         return {
-            "message": f"ReadError: Could not extract {fname}.tar.gz\n",
+            "message": f"ReadError: Could not extract {fname}\n",
             "return_code": 400,
         }
 
@@ -135,6 +148,7 @@ def verify_checksum_tar(fname):
 
                     # clean up our environment
                     shutil.rmtree(f"./jobs/{fname}")
+                    logging.info(f"Removing directory ./jobs/{fname}")
                     return {
                         "message": f"{current_file} DOES NOT MATCH THE HASH\n",
                         "return_code": 400,

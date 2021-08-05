@@ -16,7 +16,7 @@ then
     upgrade_name="$(cat metadata.json  | jq .peripheral_name | tr -d '"')-$(cat metadata.json  | jq .config_version | tr -d '"')"
 fi
 
-echo "Making upgrade .tar.gz for $upgrade_name"
+echo "Making upgrade tarfile for $upgrade_name"
 
 # generate our checksum file
 find . -type f -exec md5sum {} \; > md5sum.chk

@@ -64,7 +64,9 @@ class job:
 
         # Run our state check as many times as we need
         for x in range(0, self.__state_check_retry):
-            logging.info(f"Running {self.__name} state check, try {x+1}")
+            logging.info(
+                f"Running {self.__name} state check, try {x+1} of {self.__state_check_retry}"
+            )
 
             z = subprocess.run(
                 "./hc_state_check.sh",
@@ -85,7 +87,9 @@ class job:
 
         # Run our install as many times as we need
         for x in range(0, self.__install_retry):
-            logging.info(f"Running {self.__name} upgrade install, try {x+1}")
+            logging.info(
+                f"Running {self.__name} upgrade install, try {x+1} of {self.__state_check_retry}"
+            )
 
             z = subprocess.run(
                 "./hc_install_upgrade.sh",
@@ -105,7 +109,9 @@ class job:
     def verify_upgrade(self):
 
         for x in range(0, self.__verify_retry):
-            logging.info(f"Running {self.__name} upgrade verification, try {x+1}")
+            logging.info(
+                f"Running {self.__name} upgrade verification, try {x+1} of {self.__state_check_retry}"
+            )
 
             z = subprocess.run(
                 "./hc_verify_upgrade.sh",

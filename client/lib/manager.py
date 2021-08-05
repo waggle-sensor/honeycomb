@@ -48,6 +48,7 @@ class hc_manager:
         # if any of these processes fail, log it, and delete the environment
 
         self.__state = State.UPDATING
+        logging.info(f"Honeycomb is current in State {self.__state}")
 
         if not job_to_run.state_check():
             logging.info(
@@ -55,20 +56,29 @@ class hc_manager:
             )
             self.__state = State.IDLE
             shutil.rmtree(job_to_run.get_job_dir())
-
+            logging.info(f"Removing directory {job_to_run.get_job_dir()}")
+            logging.info(f"Honeycomb is current in State {self.__state}")
             return
         if not job_to_run.install_upgrade():
             logging.info(f"Job {job_to_run.get_name()} did not install- ABORTING.")
             self.__state = State.IDLE
             shutil.rmtree(job_to_run.get_job_dir())
+            logging.info(f"Removing directory {job_to_run.get_job_dir()}")
+            logging.info(f"Honeycomb is current in State {self.__state}")
 
             return
         if not job_to_run.verify_upgrade():
             logging.info(f"Job {job_to_run.get_name()} could not verify- ABORTING.")
             self.__state = State.IDLE
             shutil.rmtree(job_to_run.get_job_dir())
+            logging.info(f"Removing directory {job_to_run.get_job_dir()}")
+            logging.info(f"Honeycomb is current in State {self.__state}")
+
             return
         # now it's all said and done- delete the job dir and change back
         shutil.rmtree(job_to_run.get_job_dir())
+        logging.info(f"Removing directory {job_to_run.get_job_dir()}")
+        logging.info(f"Honeycomb is current in State {self.__state}")
+
         self.__state = State.IDLE
         # TODO: once we get rid of os.chdir() calls, just make a cleanup function and call it at the end
