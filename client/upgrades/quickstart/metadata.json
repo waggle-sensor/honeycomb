@@ -1,0 +1,8 @@
+{
+    "upgrade_name": "quickstart",
+    "peripheral_name": "hc",
+    "config_version": "1.0.0",
+    "retry_state_check": 5,
+    "retry_install": 5,
+    "retry_verify": 5
+}

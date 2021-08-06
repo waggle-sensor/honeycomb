@@ -18,11 +18,12 @@ def check_manifest_validity(manifest, upgrade_name):
         "retry_install",
         "retry_verify",
         "peripheral_name",
-        "force_install",
     ]
 
     for field in required_fields:
         if field not in manifest:
+            shutil.rmtree(f"./jobs/{fname}")
+            logging.info(f"Removing directory ./jobs/{fname}")
             return {
                 "message": f"{field} was not found in manifest for upgrade {upgrade_name}- aborting",
                 "return_code": 400,
@@ -45,6 +46,8 @@ def check_required_files(manifest, job_path):
     for file in required_files:
         if not os.path.isfile(f"{job_path}/{file}"):
             logging.info(f"ERROR: Job is missing file {file} in path {job_path}")
+            shutil.rmtree(f"./jobs/{fname}")
+            logging.info(f"Removing directory ./jobs/{fname}")
             return {
                 "message": f"Could not find file {job_path}/{file}",
                 "return_code": 400,
