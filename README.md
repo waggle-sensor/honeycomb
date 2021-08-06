@@ -43,9 +43,7 @@ systemctl start honeycomb
 -------
 ## Quickstart 
 
-If you don't want to read a bunch of docs, you can follow this quickstart guide that uses an example upgrade provided. 
-
-[insert quickstart here]
+If you don't want to read a bunch of docs, you can follow [this quickstart guide](QUICKSTART.md) that uses an example upgrade provided. 
 
 -------
 ## Getting Started
